@@ -155,6 +155,7 @@
                 </svg>
             </button>
             <div class="blog-reader-header">
+                <div class="modal-cover-photo" id="modal-cover-photo"></div>
                 <span class="badge" id="modal-category-badge" style="margin-bottom: 0.75rem;">AI & Automation</span>
                 <h2 id="modal-article-title" style="font-size: 1.8rem; font-weight: 800; line-height: 1.3;">Article Title</h2>
                 <div class="blog-author-block" style="border: none; padding: 0; margin-top: 1.25rem;">
@@ -519,7 +520,8 @@
                     author: author.name,
                     authorInitials: author.init,
                     date: `${dateMonth} ${dateDay}, 2026`,
-                    readTime: `${readTime} min read`
+                    readTime: `${readTime} min read`,
+                    image: `assets/blog_img_${(index % 6) + 1}.png`
                 };
             });
 
@@ -550,6 +552,9 @@
 
             // Open Reader Modal
             function openReader(article) {
+                const modalCoverPhoto = document.getElementById('modal-cover-photo');
+                if (modalCoverPhoto) modalCoverPhoto.style.backgroundImage = `url('${article.image}')`;
+                
                 modalBadge.textContent = article.category;
                 // Add specific styles depending on the category for badge styling
                 modalTitle.textContent = article.title;
@@ -615,6 +620,7 @@
                     const card = document.createElement('article');
                     card.className = 'blog-card';
                     card.innerHTML = `
+                        <img src="${article.image}" class="blog-card-img" alt="Blog thumbnail">
                         <div class="blog-card-body">
                             <span class="badge blog-card-badge">${article.category}</span>
                             <h3 class="blog-card-title">${article.title}</h3>
