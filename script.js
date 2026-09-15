@@ -62,12 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Pricing Bands — exact tiers as specified
     const pricingPlans = [
-        { name: "1–25 Employees",      price: "24,999",  desc: "Perfect for startups and small scale teams.", link: "https://rzp.io/rzp/G9kTyKf" },
-        { name: "26–100 Employees",    price: "35,999",  desc: "Fully featured HRMS toolkit for scaling companies.", link: "https://rzp.io/rzp/PYUzf0m" },
-        { name: "101–250 Employees",   price: "59,999",  desc: "Comprehensive workflows for mid-sized companies.", link: "" },
-        { name: "251–500 Employees",   price: "89,999",  desc: "Engineered for high-growth workforce structures.", link: "" },
-        { name: "501–1000 Employees",  price: "1,49,999", desc: "Dedicated resources for large SMB organizations.", link: "" },
-        { name: "1000+ Employees",     price: "Custom Enterprise Pricing", desc: "Enterprise scale SLA, databases, and custom API syncs.", link: "" }
+        { name: "1–25 Employees",      price: "899",   desc: "Perfect for startups and small scale teams." },
+        { name: "26–100 Employees",    price: "2,099",  desc: "Fully featured HRMS toolkit for scaling companies." },
+        { name: "101–250 Employees",   price: "3,449",  desc: "Comprehensive workflows for mid-sized companies." },
+        { name: "251–500 Employees",   price: "6,499",  desc: "Engineered for high-growth workforce structures." },
+        { name: "501–1000 Employees",  price: "7,999",  desc: "Dedicated resources for large SMB organizations." },
+        { name: "1000+ Employees",     price: "Custom Enterprise Pricing", desc: "Enterprise scale SLA, databases, and custom API syncs." }
     ];
 
     function updatePricing(index) {
@@ -104,25 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
             label.classList.toggle('active', i <= index);
         });
 
-        // Update pricing CTA button style based on checkout link existence
-        const pricingCtaBtn = document.getElementById('pricing-cta-btn');
-        if (pricingCtaBtn) {
-            if (plan.link) {
-                pricingCtaBtn.textContent = 'Get Started';
-                pricingCtaBtn.className = 'btn btn-primary btn-contact-trigger';
-                pricingCtaBtn.style.boxShadow = '0 4px 14px rgba(77, 166, 255, 0.4)';
-            } else {
-                pricingCtaBtn.textContent = 'Contact Sales';
-                pricingCtaBtn.className = 'btn btn-outline btn-contact-trigger';
-                pricingCtaBtn.style.boxShadow = 'none';
-            }
-        }
-
         // Update slider fill track color dynamically
         if (employeeSlider) {
             const pct = (index / (pricingPlans.length - 1)) * 100;
             employeeSlider.style.background =
-                `linear-gradient(to right, #3B82F6 ${pct}%, #F1F5F9 ${pct}%)`;
+                `linear-gradient(to right, #4DA6FF ${pct}%, #EAF4FF ${pct}%)`;
         }
     }
 
@@ -202,19 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     contactTriggers.forEach(btn => {
         btn.addEventListener('click', () => {
-            // If it is the pricing card CTA and has a checkout link, redirect directly to Razorpay
-            if (btn.id === 'pricing-cta-btn' && employeeSlider) {
-                const planIndex = parseInt(employeeSlider.value);
-                const plan = pricingPlans[planIndex];
-                if (plan && plan.link) {
-                    window.open(plan.link, '_blank', 'noopener,noreferrer');
-                    return;
-                }
-            }
-
             let mailSubject = "Inquiry for Contact Sales - Kylrx AI";
             
-            // If it is the pricing card CTA without a link, use the plan details
+            // If it is the pricing card CTA, use the plan details
             if (btn.id === 'pricing-cta-btn' && employeeSlider) {
                 const planIndex = parseInt(employeeSlider.value);
                 const plan = pricingPlans[planIndex];
