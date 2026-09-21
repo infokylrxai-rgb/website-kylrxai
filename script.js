@@ -53,82 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- Interactive Pricing Slider ---
-    const employeeSlider = document.getElementById('employee-slider');
-    const selectedTierName = document.getElementById('selected-tier-name');
-    const selectedTierDesc = document.getElementById('selected-tier-desc');
-    const selectedPrice = document.getElementById('selected-price');
-    const sliderLabels = document.querySelectorAll('.slider-label');
-
-    // Pricing Bands — exact tiers as specified
-    const pricingPlans = [
-        { name: "1–25 Employees",      price: "899",   desc: "Perfect for startups and small scale teams." },
-        { name: "26–100 Employees",    price: "2,099",  desc: "Fully featured HRMS toolkit for scaling companies." },
-        { name: "101–250 Employees",   price: "3,449",  desc: "Comprehensive workflows for mid-sized companies." },
-        { name: "251–500 Employees",   price: "6,499",  desc: "Engineered for high-growth workforce structures." },
-        { name: "501–1000 Employees",  price: "7,999",  desc: "Dedicated resources for large SMB organizations." },
-        { name: "1000+ Employees",     price: "Custom Enterprise Pricing", desc: "Enterprise scale SLA, databases, and custom API syncs." }
-    ];
-
-    function updatePricing(index) {
-        const plan = pricingPlans[index];
-        if (!plan) return;
-
-        const priceContainer = document.querySelector('.price-container');
-        const currencySign = priceContainer ? priceContainer.querySelector('.currency') : null;
-        const periodLabel = priceContainer ? priceContainer.querySelector('.period') : null;
-
-        // Animate price change with a quick fade
-        if (selectedPrice) {
-            selectedPrice.style.opacity = '0';
-            setTimeout(() => {
-                if (plan.price === "Custom Enterprise Pricing") {
-                    selectedPrice.textContent = plan.price;
-                    selectedPrice.style.fontSize = '1.6rem';
-                    if (currencySign) currencySign.style.display = 'none';
-                    if (periodLabel) periodLabel.style.display = 'none';
-                } else {
-                    selectedPrice.textContent = plan.price;
-                    selectedPrice.style.fontSize = '';
-                    if (currencySign) currencySign.style.display = '';
-                    if (periodLabel) periodLabel.style.display = '';
-                }
-                selectedPrice.style.opacity = '1';
-            }, 150);
-        }
-        if (selectedTierName) selectedTierName.textContent = plan.name;
-        if (selectedTierDesc) selectedTierDesc.textContent = plan.desc;
-
-        // Highlight slider labels up to the active index
-        sliderLabels.forEach((label, i) => {
-            label.classList.toggle('active', i <= index);
-        });
-
-        // Update slider fill track color dynamically
-        if (employeeSlider) {
-            const pct = (index / (pricingPlans.length - 1)) * 100;
-            employeeSlider.style.background =
-                `linear-gradient(to right, #4DA6FF ${pct}%, #EAF4FF ${pct}%)`;
-        }
-    }
-
-    if (employeeSlider) {
-        employeeSlider.addEventListener('input', (e) => {
-            updatePricing(parseInt(e.target.value));
-        });
-        // Initialize on page load
-        updatePricing(parseInt(employeeSlider.value));
-    }
-
-    // Allow clicking a label to jump to that tier
-    sliderLabels.forEach((label, index) => {
-        label.addEventListener('click', () => {
-            if (employeeSlider) {
-                employeeSlider.value = index;
-                updatePricing(index);
-            }
-        });
-    });
 
 
     // --- FAQ Accordion behavior ---
@@ -588,6 +512,81 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     initLaunchOfferInteractions();
+
+    // KylrxAI Launch Pricing Plans - Plan Selection & Checkout Handling
+    const initLaunchPricingPlans = () => {
+        const planButtons = document.querySelectorAll('.launch-plan-btn[data-plan-id]');
+
+        const PLAN_DETAILS = {
+            '6_months': {
+                name: '6 Months + 1 Month Free',
+                duration: '7 Months',
+                price: '₹10,000',
+                amount: 10000,
+                savings: '₹2,428/month',
+                paymentUrl: 'https://rzp.io/rzp/WahZgO1n'
+            },
+            '1_year': {
+                name: '1 Year (👑 Best Value)',
+                duration: 'Next 8 Months',
+                price: '₹17,000',
+                amount: 17000,
+                savings: '₹1,500/month',
+                paymentUrl: 'https://rzp.io/rzp/Z53w727'
+            }
+        };
+
+        planButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const planId = button.getAttribute('data-plan-id');
+                const plan = PLAN_DETAILS[planId];
+                if (!plan) return;
+
+                // Visual button feedback
+                const originalText = button.textContent;
+                button.textContent = 'Opening Checkout...';
+
+                // Highlight active card
+                document.querySelectorAll('.launch-pricing-card').forEach(c => c.classList.remove('is-selected'));
+                const card = button.closest('.launch-pricing-card');
+                if (card) card.classList.add('is-selected');
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+
+                // Dispatch custom checkout event
+                const checkoutEvent = new CustomEvent('plan:checkout', {
+                    detail: {
+                        planId: planId,
+                        ...plan,
+                        timestamp: new Date().toISOString()
+                    },
+                    bubbles: true
+                });
+                document.dispatchEvent(checkoutEvent);
+
+                // If direct paymentUrl exists (e.g. Razorpay), open directly!
+                if (plan.paymentUrl) {
+                    // Let default link navigation occur if it's an <a> tag, otherwise window.open
+                    if (button.tagName.toLowerCase() !== 'a') {
+                        e.preventDefault();
+                        window.open(plan.paymentUrl, '_blank', 'noopener,noreferrer');
+                    }
+                    return;
+                }
+
+                // Otherwise, open Gmail compose with plan inquiry details
+                e.preventDefault();
+                const mailSubject = `Subscription Order: Kylrx AI ${plan.name} (${plan.price})`;
+                const mailBody = `Hi Kylrx AI Team,%0D%0A%0D%0AI would like to activate the ${encodeURIComponent(plan.name)} plan at ${encodeURIComponent(plan.price)}.%0D%0A%0D%0APlan Details:%0D%0A- Duration: ${encodeURIComponent(plan.duration)}%0D%0A- Price: ${encodeURIComponent(plan.price)}%0D%0A- Savings: ${encodeURIComponent(plan.savings)}%0D%0A%0D%0APlease share the onboarding steps and payment link.%0D%0A%0D%0AThank you!`;
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=info.kylrxai@gmail.com&su=${encodeURIComponent(mailSubject)}&body=${mailBody}`;
+                window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+            });
+        });
+    };
+
+    initLaunchPricingPlans();
 
     // Trigger stat counters animation on load
     setTimeout(animateStatsCounter, 800);
